@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7f3">
+  <title>青账 · 微信账单助手</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ui-polish.css">
+  <script src="ledger-core.js" defer></script>
+  <script src="vendor/xlsx.full.min.js" defer></script>
+  <script src="xlsx-import.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <svg class="icon-definitions" aria-hidden="true"><defs>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 5h.01M3 12h.01M3 19h.01"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v13m-5-5 5 5 5-5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4m0 4h.01"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="10" cy="18" r="2"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 4C9 2 3 7 5 15s15 4 15-11Z"/><path d="M4 21 15 10"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 14h8m-8 3h5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  </defs></svg>
+  <aside class="sidebar">
+    <a class="brand" href="#overview" aria-label="青账首页"><span class="brand-mark"><svg class="icon"><use href="#i-leaf"/></svg></span><span>青账<small>WECHAT LEDGER</small></span></a>
+    <div class="nav-label">我的账本</div>
+    <nav aria-label="主导航">
+      <a class="nav-item active" href="#overview"><svg class="icon"><use href="#i-grid"/></svg>收支概览</a>
+      <a class="nav-item" href="#counterparties"><svg class="icon"><use href="#i-grid"/></svg>交易对象</a>
+      <a class="nav-item" href="#ledger"><svg class="icon"><use href="#i-list"/></svg>交易明细</a>
+      <button class="nav-item" data-action="manage"><svg class="icon"><use href="#i-settings"/></svg>数据管理</button>
+      <button class="nav-item" data-action="help"><svg class="icon"><use href="#i-help"/></svg>导入指南</button>
+    </nav>
+    <div class="sidebar-note"><span class="small-leaf">✦</span><strong>少一点手动，<br>多一点清楚。</strong><p>把零散的消费，<br>变成看得懂的日常。</p></div>
+    <div class="local-badge"><svg class="icon"><use href="#i-lock"/></svg><span>数据保存在本机浏览器<small>无需登录 · 无需上传账单</small></span></div>
+  </aside>
+  <main id="overview">
+    <header class="topbar"><span class="breadcrumb">个人账本 <span>/</span> 收支概览</span><div class="top-actions"><span id="mode-badge" class="mode-badge" hidden>示例模式</span><button class="button text-button" id="demo-button">体验示例</button><button class="button primary" data-action="import"><svg class="icon"><use href="#i-upload"/></svg>导入微信账单</button></div></header>
+    <section class="welcome"><div><div class="eyebrow"><span class="status-dot"></span>你的日常，清晰有序</div><h1>让每一笔，都有迹可循<span>。</span></h1><p>导入微信账单，自动归类，慢慢读懂自己的消费习惯。</p></div><div class="month-picker" id="month-picker"><span>统计月份</span><div class="pretty-select"><button type="button" class="pretty-select-trigger" id="month-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="month-menu"><span id="month-trigger-label">全部月份</span><svg class="icon" aria-hidden="true"><use href="#i-chevron"/></svg></button><div class="pretty-select-menu" id="month-menu" role="listbox" aria-label="统计月份" hidden></div></div><select id="month-filter" class="native-select-bridge" aria-hidden="true" tabindex="-1"></select></div></section>
+    <div id="demo-banner" class="notice demo-notice" hidden><span>正在查看虚构的示例账单，示例不会写入你的账本。</span><button class="link-button" id="exit-demo">返回我的账本 →</button></div>
+    <div id="storage-warning" class="notice warning" hidden>当前浏览器无法保存数据，刷新后记录可能丢失。请及时在「数据管理」中导出备份。</div>
+    <section class="stats" aria-label="收支汇总">
+      <article class="stat-card featured"><div class="stat-heading">账单支出<span class="stat-icon">↗</span></div><div class="stat-value" id="expense-total">¥0.00</div><div class="stat-caption">按原始付款金额 · 含已退款原单</div></article>
+      <article class="stat-card"><div class="stat-heading">账单收入<span class="stat-icon income-icon">↙</span></div><div class="stat-value" id="income-total">¥0.00</div><div class="stat-caption">不含退款与账户转移</div></article>
+      <article class="stat-card"><div class="stat-heading">独立退款<span class="stat-icon refund-icon">↶</span></div><div class="stat-value" id="refund-total">¥0.00</div><div class="stat-caption">仅汇总账单中的独立退款记录</div></article>
+      <article class="stat-card"><div class="stat-heading">交易记录<span class="stat-icon count-icon">≡</span></div><div class="stat-value" id="record-count">0 <small>笔</small></div><div class="stat-caption" id="record-caption">包括账户转移与不计入记录</div></article>
+    </section>
+    <section class="charts">
+      <article class="panel category-panel"><div class="panel-heading"><div><h2>钱花在哪里</h2><p>支出分类分布</p></div><span class="tiny-label">点击分类查看明细</span></div><div class="category-body"><div id="donut" class="donut"></div><div id="category-legend" class="category-legend"></div></div></article>
+      <article class="panel trend-panel"><div class="panel-heading"><div><h2>收支节奏</h2><p id="trend-caption">按周查看账单金额</p></div><div class="chart-key"><span><i class="expense-dot"></i>支出</span><span><i class="income-dot"></i>收入</span></div></div><div id="trend-chart" class="trend-chart"></div></article>
+    </section>
+    <section class="panel counterparty-panel" id="counterparties" aria-labelledby="counterparty-title">
+      <div class="panel-heading"><div><h2 id="counterparty-title">交易对象金额排行</h2><p>按累计交易金额，从大到小、从左到右排列</p></div><div class="counterparty-controls"><select id="counterparty-direction" aria-label="交易对象统计类型"><option value="expense">看支出</option><option value="income">看收入</option><option value="refund">看退款</option><option value="all">全部交易</option></select><select id="counterparty-limit" aria-label="显示交易对象数量"><option value="10">前 10 个</option><option value="20">前 20 个</option><option value="all">全部（分页）</option></select></div></div>
+      <div class="counterparty-toolbar"><p id="counterparty-caption"></p><label class="search-input counterparty-search"><svg class="icon"><use href="#i-search"/></svg><input id="counterparty-search" type="search" placeholder="搜索交易对象" aria-label="搜索图表中的交易对象"></label></div>
+      <div id="counterparty-empty" class="counterparty-empty" hidden><svg class="icon"><use href="#i-grid"/></svg><p>导入账单后，这里会显示交易对象、累计金额、次数和日期。</p></div>
+      <div id="counterparty-chart" class="counterparty-chart" aria-label="交易对象累计金额柱状图"></div>
+      <p class="counterparty-mobile-hint" id="counterparty-swipe-hint">左右滑动查看柱子，点击交易对象查看日期与明细。</p>
+      <div id="counterparty-pagination" class="counterparty-pagination" hidden><span id="counterparty-page-info"></span><div class="pagination"><button class="button subtle" id="counterparty-previous">上一页</button><button class="button subtle" id="counterparty-next">下一页</button></div></div>
+      <div id="counterparty-detail" class="counterparty-detail" hidden></div>
+    </section>
+    <section class="panel ledger-panel" id="ledger"><div class="panel-heading"><div><h2>每一笔日常</h2><p id="ledger-caption">从一份微信账单开始</p></div><button class="button subtle" id="export-csv"><svg class="icon"><use href="#i-download"/></svg>导出当前明细</button></div>
+      <div class="filters"><label class="search-input"><svg class="icon"><use href="#i-search"/></svg><input id="search" type="search" placeholder="搜索商户、商品或交易单号" aria-label="搜索交易"></label><select id="direction-filter" aria-label="收支类型"><option value="all">全部收支</option><option value="expense">支出</option><option value="income">收入</option><option value="refund">退款</option><option value="neutral">其他 / 转移</option></select><select id="category-filter" aria-label="交易分类"><option value="all">全部分类</option></select><button class="link-button" id="reset-filters" hidden>重置</button></div>
+      <div id="counterparty-filter-chip" class="counterparty-filter-chip" hidden><span id="counterparty-filter-label"></span><button id="clear-counterparty-filter" aria-label="清除交易对象筛选">×</button></div>
+      <div class="table-scroll"><table><thead><tr><th>交易对象 / 商品</th><th>分类</th><th>交易时间</th><th>金额</th><th>状态</th><th><span class="sr-only">操作</span></th></tr></thead><tbody id="ledger-body"></tbody></table></div>
+      <div id="ledger-empty" class="empty-state"><div class="empty-icon"><svg class="icon"><use href="#i-file"/></svg></div><h3>你的账本，等第一笔日常</h3><p>直接导入微信 XLSX 账单，分类和汇总交给青账。</p><button class="button primary" data-action="import">导入第一份账单 <svg class="icon"><use href="#i-arrow"/></svg></button><button class="link-button" id="empty-demo">先看看示例账本</button></div>
+      <div class="table-footer" id="table-footer" hidden><span id="page-info"></span><div class="pagination"><button class="button subtle" id="previous-page">上一页</button><span id="page-number"></span><button class="button subtle" id="next-page">下一页</button></div></div>
+    </section>
+    <footer class="page-footer"><span>青账 · 认真对待每一笔日常</span><span>按账单原始金额统计，统计结果不等同于账户余额。<button class="link-button" data-action="help">了解统计口径</button></span></footer>
+  </main>
+  <dialog id="import-dialog"><div class="dialog-heading"><div><span class="eyebrow">开始记账</span><h2>把微信账单放进来</h2></div><button class="close-button" data-close="import-dialog" aria-label="关闭导入窗口">×</button></div><p class="dialog-description">直接选择微信导出的 XLSX 账单，无需转成 CSV。自动识别分类和重复记录，也兼容 CSV。</p><label class="dropzone" id="dropzone"><input type="file" id="bill-input" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" multiple><span class="upload-icon"><svg class="icon"><use href="#i-upload"/></svg></span><strong id="dropzone-title">点击选择，或把账单拖到这里</strong><span>XLSX / CSV · 可多选 · ZIP 文件请先解压</span></label><div class="import-steps"><div><b>01</b><span>打开微信账单<small>我 → 服务 → 钱包 → 账单</small></span></div><div><b>02</b><span>下载个人对账账单<small>常见问题 → 下载账单</small></span></div><div><b>03</b><span>选择收到的 XLSX<small>入口名称可能随微信版本变化</small></span></div></div><div id="import-preview" class="import-preview" hidden></div><div id="import-error" class="error-box" role="alert" hidden></div><div class="dialog-footer"><span><svg class="icon"><use href="#i-lock"/></svg>文件只在本机处理</span><button class="button primary" id="confirm-import" disabled>确认导入</button></div></dialog>
+  <dialog id="record-dialog"><div class="dialog-heading"><div><span class="eyebrow">交易详情</span><h2 id="record-title"></h2></div><button class="close-button" data-close="record-dialog" aria-label="关闭交易详情">×</button></div><div id="record-detail"></div><form id="record-form"><label class="field-label" for="edit-category">交易分类</label><select id="edit-category"></select><label class="checkbox-label"><input id="remember-rule" type="checkbox" checked><span>记住这个交易对象的分类，用于以后的导入</span></label><p class="muted small">将分类设为「账户转移」或「不计入」，该笔交易将不参与金额汇总。</p><div class="dialog-footer"><span id="record-edit-note"></span><button class="button primary" type="submit">保存分类</button></div></form></dialog>
+  <dialog id="help-dialog"><div class="dialog-heading"><h2>关于导入和统计</h2><button class="close-button" data-close="help-dialog" aria-label="关闭指南">×</button></div><div class="help-copy"><h3>怎么获得微信账单？</h3><p>通常在微信「我 → 服务 → 钱包 → 账单 → 常见问题 → 下载账单」，选择「用于个人对账」。导出文件如果是 ZIP，请先解压，再导入其中的 XLSX 或 CSV。收到 XLSX 文件时可以直接导入，无需转换。不同版本的入口可能有所变化。</p><h3>青账如何统计？</h3><p>支出按照账单中的原始付款金额汇总，已退款的原单仍保留在支出中。退款交易单独归类，不计入收入。「独立退款」只汇总独立退款记录，不从支出中扣减，也不会根据原单状态推算退款。月度数字是账单汇总，并非净消费或账户余额。</p><p>零钱充值、提现、零钱通转入转出、信用卡还款等被标记为账户转移；失败、关闭、取消和待完成的交易不参与金额汇总。普通向他人转账按账单收支记录，你可以自行修改分类。</p><h3>重复导入会怎样？</h3><p>优先根据微信交易单号去重；没有单号时，根据交易时间、金额、对象等字段匹配。已有记录更新账单字段，保留你手动修改的分类。同一商户不一定对应同一种消费，自动分类结果可以随时修正。</p><h3>数据保存在哪里？</h3><p>保存在当前浏览器的本地存储中。更换浏览器、换一种打开地址、使用无痕模式或清除浏览器数据，都可能让你看不到原来的账本。请定期通过「数据管理」导出 JSON 备份，备份可以恢复分类和规则。</p><p>当前版本支持个人对账 XLSX 和 CSV。加密的 Excel 文件需先用密码打开，另存为不带打开密码的 XLSX。不直接连接微信，也不支持 PDF、旧版 XLS 或自动读取邮件。</p></div></dialog>
+  <dialog id="manage-dialog"><div class="dialog-heading"><h2>照顾好你的账本</h2><button class="close-button" data-close="manage-dialog" aria-label="关闭数据管理">×</button></div><p class="dialog-description" id="manage-caption"></p><div class="manage-row"><div><h3>完整备份</h3><p>保存交易、手动分类和商户分类规则。</p></div><button class="button subtle" id="backup-button">导出 JSON 备份</button></div><div class="manage-row"><div><h3>恢复备份</h3><p>合并到你的真实账本，已有手动分类保留。</p></div><label class="button subtle file-button">选择备份文件<input type="file" id="backup-input" accept=".json,application/json"></label></div><div class="manage-row danger-row"><div><h3>清空本机账本</h3><p>移除真实交易和分类规则，请先备份。</p></div><button class="button danger" id="clear-button">清空账本</button></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

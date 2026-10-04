@@ -1,0 +1,241 @@
+/* ============================================================
+   安卓版专属覆盖样式
+   —— 只由 android/build.mjs 注入到 APK 的 assets/index.html，
+      桌面版单文件（dist/青账.html）不含本文件。
+
+   这里放三类改动：
+     1. 整页横向滚动护栏
+     2. 帮助入口强化
+     3. 与桌面版的其它差异
+
+   桌面版源码（styles.css / ui-polish.css / index.html）保持原样，
+   所以两端会有意地不完全一致。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. 整页横向滚动护栏
+   原问题：html / body 的 overflow-x 默认是 visible，而对根元素来说
+   visible 会按规范计算成 auto，于是整页在横向上可滚动。
+   导入账单后内容渲染出来（明细表格 width:100% + white-space:nowrap，
+   实际宽约 566px，而手机视口只有 375px），就会把根元素的滚动范围
+   撑到 527px —— 用户可以把整页往左拖约 150px，右边露出一大片空白。
+   注意：那张表虽然套在 .table-scroll{overflow:auto} 里，它的溢出
+   仍然会被算进根元素，所以必须从根元素这里掐掉。
+   需要横向滚动的表格 / 交易对象图表都有自己的滚动容器，不受影响。
+   ------------------------------------------------------------ */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  overscroll-behavior-x: none;
+}
+
+/*
+   只把「页面本身」锁在视口内。min-width: 0 很重要：这些元素大多是
+   flex/grid 容器，默认的 min-width:auto 会让一个长文本或宽控件把父级
+   撑宽，即使 html 已经设置了 overflow-x:hidden，也会出现横向拖动后的
+   空白区域或内容被整体带走的感觉。
+*/
+main,
+.topbar,
+.welcome,
+.stats,
+.charts,
+.panel,
+.panel-heading,
+.category-body,
+.trend-chart,
+.counterparty-panel,
+.counterparty-toolbar,
+.counterparty-detail,
+.ledger-panel,
+.filters,
+.table-footer,
+.page-footer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+main,
+.topbar,
+.welcome,
+.stats,
+.charts,
+.panel,
+.counterparty-panel,
+.ledger-panel,
+.page-footer {
+  overflow-x: hidden;
+}
+
+/* 安卓页面其它区域只允许上下滚动；明细表在下方单独恢复 pan-x。 */
+main {
+  touch-action: pan-y;
+}
+
+.welcome,
+.welcome > *,
+.welcome h1,
+.welcome p,
+.month-picker {
+  touch-action: pan-y;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------
+   2. 安卓月份选择：使用系统弹窗
+   页面内的自定义 listbox 在部分 WebView 中会被后续卡片的绘制层盖住。
+   安卓端直接显示原生 select，点击后由 WebView/Android 弹出选择框，
+   因而不会被页面内容遮挡；桌面版仍保留原来的自定义选择器。
+   ------------------------------------------------------------ */
+.month-picker .pretty-select {
+  display: none;
+}
+
+.month-picker .native-select-bridge {
+  position: relative !important;
+  display: block !important;
+  width: 148px !important;
+  min-width: 148px !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 9px 38px 9px 13px !important;
+  border: 1px solid #dfe8da !important;
+  border-radius: 10px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  overflow: visible !important;
+  color: #506451 !important;
+  background-color: #fbfdf9 !important;
+  background-image: none !important;
+  box-shadow: 0 2px 0 rgba(73, 112, 68, .03), inset 0 1px 0 rgba(255, 255, 255, .8) !important;
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  touch-action: manipulation;
+}
+
+@media (max-width: 680px) {
+  .month-picker .native-select-bridge {
+    width: 112px !important;
+    min-width: 112px !important;
+    padding: 8px 28px 8px 8px !important;
+    font-size: 10px !important;
+  }
+}
+
+/*
+   明细表是安卓端唯一允许横向拖动的区域。表格使用 max-content 宽度，
+   因而不会被压缩成难以阅读的多行单元格；横向溢出只存在于这个滚动
+   容器内，不会扩大页面的 scrollWidth。
+*/
+.ledger-panel .table-scroll {
+  width: 100%;
+  max-width: 100%;
+  contain: paint;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+}
+
+.ledger-panel .table-scroll > table {
+  width: max-content;
+  min-width: 100%;
+}
+
+/* ------------------------------------------------------------
+   2. 帮助入口强化
+   原「导入指南」在移动端导航条里是一颗不起眼的描边小问号，而且
+   导航条本身要横向滚动才看得见它。这里在顶部栏加一个常驻的胶囊
+   按钮（见 build.mjs 注入的标记），任何宽度都留在屏幕上。
+   ------------------------------------------------------------ */
+.help-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #cfe1c3;
+  background: #eaf3e3;
+  color: #2f6c3e;
+  border-radius: 999px;
+  padding: 6px 14px 6px 7px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .16s ease, box-shadow .22s ease, transform .22s ease;
+}
+
+.help-button:hover {
+  background: #ddedd2;
+  box-shadow: 0 5px 14px rgba(49, 120, 78, .16);
+  transform: translateY(-1px);
+}
+
+.help-button:active {
+  transform: translateY(0) scale(.97);
+}
+
+/* 绿底圆形里的白色问号。图标用内联 svg 自带 path（不依赖 <use> 符号），
+   所以这里只负责给它一个圆底和更粗的描边。 */
+.help-button .icon {
+  width: 17px;
+  height: 17px;
+  padding: 3px;
+  box-sizing: content-box;
+  color: #fff;
+  background: #31784e;
+  border-radius: 50%;
+  stroke-width: 2.7;
+}
+
+.nav-item[data-action="help"] {
+  background: #eef5e8;
+  color: #2f6c3e;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px #d7e6cc;
+}
+
+.nav-item[data-action="help"]:hover {
+  background: #e3efd9;
+}
+
+.nav-item[data-action="help"] .icon {
+  color: #31784e;
+  stroke-width: 2.1;
+}
+
+@media (max-width: 680px) {
+  .help-button {
+    padding: 5px 11px 5px 6px;
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .help-button .icon {
+    width: 15px;
+    height: 15px;
+    padding: 2px;
+  }
+}
+
+/* 极窄屏只留圆形问号，避免把顶部栏挤到换行 */
+@media (max-width: 400px) {
+  .help-button-text {
+    display: none;
+  }
+
+  .help-button {
+    padding: 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-button {
+    transition: none !important;
+  }
+}

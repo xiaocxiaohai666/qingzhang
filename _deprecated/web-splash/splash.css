@@ -1,0 +1,111 @@
+/* ============================================================
+   安卓壳启动动画（只注入到 Android 版资产，桌面版单文件不含这段）
+   作用：覆盖 930KB 内联 SheetJS 的解析时间，避免打开瞬间看到一片空白。
+   冷启动的最初一瞬由原生 windowBackground 闪屏兜住（见 android/res）。
+   ============================================================ */
+#qz-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f7f3;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#qz-splash.qz-splash-leave {
+  opacity: 0;
+  transition: opacity .34s ease;
+  pointer-events: none;
+}
+
+.qz-splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qz-splash-mark {
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+  background: #31784e;
+  display: grid;
+  place-items: center;
+  animation: qz-splash-pop .62s cubic-bezier(.22, 1.2, .36, 1) both,
+             qz-splash-breathe 1.9s ease-in-out .62s infinite;
+}
+
+.qz-splash-mark svg {
+  width: 42px;
+  height: 42px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.qz-splash-name {
+  margin-top: 20px;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #24382c;
+  animation: qz-splash-rise .5s ease-out .12s both;
+}
+
+.qz-splash-sub {
+  margin-top: 7px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #94a08c;
+  animation: qz-splash-rise .5s ease-out .2s both;
+}
+
+.qz-splash-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 26px;
+}
+
+.qz-splash-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a8c097;
+  animation: qz-splash-dot 1.15s ease-in-out infinite;
+}
+
+.qz-splash-dots i:nth-child(2) { animation-delay: .16s; }
+.qz-splash-dots i:nth-child(3) { animation-delay: .32s; }
+
+@keyframes qz-splash-pop {
+  from { opacity: 0; transform: scale(.72) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes qz-splash-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.055); }
+}
+
+@keyframes qz-splash-rise {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes qz-splash-dot {
+  0%, 100% { opacity: .35; transform: translateY(0); }
+  35%      { opacity: 1;   transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qz-splash-mark,
+  .qz-splash-name,
+  .qz-splash-sub,
+  .qz-splash-dots i {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 青账图标前景：与网页里的叶子图标同一套路径，按自适应图标的 108dp 画布缩放居中 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="2.9"
+        android:scaleY="2.9"
+        android:translateX="19.2"
+        android:translateY="19.2">
+        <path
+            android:pathData="M20,4 C9,2 3,7 5,15 C7,23 20,19 20,4 Z"
+            android:fillColor="#00000000"
+            android:strokeColor="#5C8449"
+            android:strokeWidth="1.9"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <path
+            android:pathData="M4,21 L15,10"
+            android:fillColor="#00000000"
+            android:strokeColor="#5C8449"
+            android:strokeWidth="1.9"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 冷启动闪屏：Activity 起来到 WebView 画出第一帧之间显示的窗口背景。
+     纯色 #F5F7F3 + 居中的叶子图标，和网页里的启动动画视觉一致，
+     这样从"点图标"到"网页加载完"整个过程是连贯的，不会闪白。 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/splash_background" />
+    <item
+        android:width="86dp"
+        android:height="86dp"
+        android:gravity="center"
+        android:drawable="@drawable/ic_launcher_foreground" />
+</layer-list>

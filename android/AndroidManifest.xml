@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.qingzhang.ledger"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <!--
+      刻意不声明任何权限，包括 INTERNET。
+      全部资源由 MainActivity.shouldInterceptRequest 从 assets 返回，
+      不存在真实网络请求；选文件与保存文件走 SAF，也不需要存储权限。
+      所以在系统设置里，这个 App 的权限列表是空的。
+    -->
+
+    <application
+        android:label="青账"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:hardwareAccelerated="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="青账"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden|uiMode|fontScale"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

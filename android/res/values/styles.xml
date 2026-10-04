@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- 冷启动闪屏用 layer-list，避免 Activity 起来到 WebView 首帧之间闪白 -->
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:statusBarColor">#F5F7F3</item>
+        <item name="android:navigationBarColor">#F5F7F3</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+    <color name="ic_launcher_background">#EEF3E4</color>
+    <color name="splash_background">#F5F7F3</color>
+</resources>

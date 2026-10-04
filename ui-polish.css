@@ -1,0 +1,445 @@
+/*
+ * Qingzhang visual polish
+ * Uses the platform's installed Chinese UI fonts so the local, offline app
+ * stays crisp on Windows, macOS, and common Android desktop environments.
+ */
+:root {
+  --font: "SF Pro Display", "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans CJK SC", "MiSans", "HarmonyOS Sans SC", "Microsoft YaHei",
+    "Segoe UI", system-ui, sans-serif;
+  --ease-spring: cubic-bezier(.22, 1.35, .36, 1);
+  --ease-soft: cubic-bezier(.2, .75, .25, 1);
+  --ink-soft: #506451;
+}
+
+body {
+  font-family: var(--font);
+  letter-spacing: .01em;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+h1,
+h2,
+h3,
+.brand,
+.stat-value {
+  letter-spacing: -.015em;
+}
+
+/*
+ * Native select controls are deliberately kept native for keyboard and screen
+ * reader support, but get a quieter shape, custom chevron, and a soft lift.
+ */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 38px;
+  padding: 9px 38px 9px 13px;
+  border: 1px solid #dfe8da;
+  border-radius: 10px;
+  color: var(--ink-soft);
+  background-color: #fbfdf9;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='m3.25 5.25 3.75 3.5 3.75-3.5' fill='none' stroke='%236c8563' stroke-width='1.45' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  box-shadow: 0 2px 0 rgba(73, 112, 68, .03), inset 0 1px 0 rgba(255, 255, 255, .8);
+  transition: border-color .2s var(--ease-soft), background-color .2s var(--ease-soft),
+    box-shadow .25s var(--ease-spring), transform .25s var(--ease-spring);
+}
+
+select:hover {
+  border-color: #b7cdaa;
+  background-color: #f7fbf4;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 13px rgba(64, 101, 59, .08), inset 0 1px 0 #fff;
+}
+
+select:focus {
+  border-color: #88a977;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(138, 177, 119, .16), 0 6px 15px rgba(64, 101, 59, .08);
+}
+
+select:active {
+  transform: translateY(1px) scale(.985);
+}
+
+.month-picker select {
+  min-width: 148px;
+}
+
+/* The month picker uses a small in-page listbox so its open state matches the
+ * rest of the interface instead of handing the visual treatment to the OS. */
+.month-picker {
+  position: relative;
+  z-index: 20;
+}
+
+.pretty-select {
+  position: relative;
+  min-width: 148px;
+}
+
+.pretty-select-trigger {
+  width: 100%;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #dfe8da;
+  border-radius: 10px;
+  padding: 9px 12px 9px 13px;
+  color: #506451;
+  background: #fbfdf9;
+  box-shadow: 0 2px 0 rgba(73, 112, 68, .03), inset 0 1px 0 rgba(255, 255, 255, .8);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .2s var(--ease-soft), background-color .2s var(--ease-soft),
+    box-shadow .25s var(--ease-spring), transform .25s var(--ease-spring);
+}
+
+.pretty-select-trigger:hover,
+.month-picker.is-open .pretty-select-trigger {
+  border-color: #9cbd8d;
+  background: #f7fbf4;
+  box-shadow: 0 7px 17px rgba(64, 101, 59, .10);
+  transform: translateY(-1px);
+}
+
+.pretty-select-trigger:focus-visible {
+  outline: 0;
+  border-color: #88a977;
+  box-shadow: 0 0 0 4px rgba(138, 177, 119, .16), 0 7px 17px rgba(64, 101, 59, .08);
+}
+
+.pretty-select-trigger:active {
+  transform: translateY(1px) scale(.985);
+}
+
+.pretty-select-trigger .icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: #6c8563;
+  transition: transform .3s var(--ease-spring);
+}
+
+.month-picker.is-open .pretty-select-trigger .icon {
+  transform: rotate(180deg);
+}
+
+.pretty-select-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 100%;
+  max-height: min(280px, 42vh);
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid #dce8d6;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .97);
+  box-shadow: 0 14px 30px rgba(44, 73, 42, .16), 0 2px 6px rgba(44, 73, 42, .08);
+  transform-origin: top right;
+  animation: month-menu-pop .28s var(--ease-spring) both;
+}
+
+.pretty-select-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: #60755d;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 11px;
+  transition: background-color .18s var(--ease-soft), color .18s var(--ease-soft),
+    transform .22s var(--ease-spring);
+}
+
+.pretty-select-option:hover,
+.pretty-select-option:focus-visible {
+  outline: 0;
+  color: #315f39;
+  background: #eef6e9;
+  transform: translateX(2px);
+}
+
+.pretty-select-option.selected {
+  color: #2f6c3e;
+  background: #e6f1df;
+  font-weight: 600;
+}
+
+.pretty-select-option .icon {
+  width: 15px;
+  height: 15px;
+  color: #5e9057;
+}
+
+.native-select-bridge {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-width: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+@keyframes month-menu-pop {
+  from { opacity: 0; transform: translateY(-5px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.filters select {
+  min-width: 118px;
+}
+
+.counterparty-controls select {
+  min-width: 112px;
+}
+
+.button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  transition: background-color .18s var(--ease-soft), border-color .18s var(--ease-soft),
+    color .18s var(--ease-soft), box-shadow .24s var(--ease-spring),
+    transform .28s var(--ease-spring);
+}
+
+.button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 25%, rgba(255, 255, 255, .2) 50%, transparent 75%);
+  transform: translateX(-130%);
+  transition: transform .6s var(--ease-soft);
+  pointer-events: none;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.018);
+  box-shadow: 0 7px 17px rgba(53, 95, 50, .12);
+}
+
+.button:hover:not(:disabled)::after {
+  transform: translateX(130%);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px) scale(.965);
+  box-shadow: 0 2px 5px rgba(53, 95, 50, .1);
+}
+
+.primary {
+  box-shadow: 0 4px 11px rgba(42, 105, 63, .14);
+}
+
+.text-button:hover:not(:disabled) {
+  box-shadow: none;
+}
+
+.nav-item {
+  transition: background-color .2s var(--ease-soft), color .2s var(--ease-soft),
+    transform .25s var(--ease-spring);
+}
+
+.nav-item:hover {
+  transform: translateX(3px);
+}
+
+.nav-item:active {
+  transform: translateX(1px) scale(.98);
+}
+
+.panel,
+.stat-card {
+  transition: border-color .24s var(--ease-soft), box-shadow .3s var(--ease-spring),
+    transform .32s var(--ease-spring);
+}
+
+.panel:hover,
+.stat-card:hover {
+  border-color: #dce8d5;
+  box-shadow: 0 10px 26px rgba(53, 85, 48, .055);
+  transform: translateY(-2px);
+}
+
+.featured:hover {
+  box-shadow: 0 11px 27px rgba(66, 111, 56, .11);
+}
+
+.stat-icon,
+.merchant-avatar,
+.empty-icon,
+.brand-mark {
+  transition: transform .34s var(--ease-spring), box-shadow .3s var(--ease-soft);
+}
+
+.stat-card:hover .stat-icon,
+.merchant-cell:hover .merchant-avatar,
+.empty-state:hover .empty-icon {
+  transform: translateY(-2px) rotate(-4deg) scale(1.08);
+  box-shadow: 0 6px 12px rgba(76, 112, 65, .11);
+}
+
+.brand:hover .brand-mark {
+  transform: rotate(-6deg) scale(1.05);
+  box-shadow: 0 9px 18px rgba(43, 108, 70, .19);
+}
+
+.search-input {
+  border-radius: 10px;
+  transition: border-color .2s var(--ease-soft), box-shadow .28s var(--ease-spring),
+    transform .28s var(--ease-spring);
+}
+
+.search-input:focus-within {
+  border-color: #a9c49b;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 4px rgba(138, 177, 119, .12), 0 7px 16px rgba(64, 101, 59, .07);
+}
+
+.category-tag,
+.view-button,
+.legend-row,
+.link-button,
+.close-button {
+  transition: color .18s var(--ease-soft), background-color .18s var(--ease-soft),
+    transform .25s var(--ease-spring), box-shadow .25s var(--ease-spring);
+}
+
+.category-tag:hover,
+.view-button:hover,
+.legend-row:hover {
+  transform: translateY(-1px) scale(1.035);
+}
+
+.category-tag:active,
+.view-button:active,
+.legend-row:active {
+  transform: scale(.95);
+}
+
+.close-button:hover {
+  background: #eaf3e3;
+  color: #4c7544;
+  transform: rotate(8deg) scale(1.05);
+}
+
+.dropzone {
+  transition: background .24s var(--ease-soft), border-color .24s var(--ease-soft),
+    transform .32s var(--ease-spring), box-shadow .32s var(--ease-spring);
+}
+
+.dropzone:hover,
+.dropzone.drag-over {
+  transform: translateY(-2px) scale(1.008);
+  box-shadow: 0 11px 24px rgba(74, 110, 61, .09);
+}
+
+.upload-icon {
+  transition: transform .4s var(--ease-spring), background-color .2s var(--ease-soft);
+}
+
+.dropzone:hover .upload-icon,
+.dropzone.drag-over .upload-icon {
+  transform: translateY(-3px) rotate(-5deg) scale(1.1);
+  background: #dcebd0;
+}
+
+.counterparty-column {
+  transition: background-color .2s var(--ease-soft), transform .35s var(--ease-spring);
+}
+
+.counterparty-column:hover {
+  transform: translateY(-3px);
+}
+
+.counterparty-bar-fill {
+  transition: height .55s var(--ease-spring), background-color .25s var(--ease-soft),
+    transform .35s var(--ease-spring), filter .25s var(--ease-soft);
+  transform-origin: 50% 100%;
+}
+
+.counterparty-column:hover .counterparty-bar-fill,
+.counterparty-column.selected .counterparty-bar-fill {
+  transform: translateX(-50%) scaleX(1.08);
+  filter: saturate(1.08);
+}
+
+.counterparty-column.selected {
+  background: #f0f7eb;
+  box-shadow: inset 0 0 0 1px #e1edd9;
+}
+
+.counterparty-column.selected .counterparty-name > i {
+  background: #dcebd1;
+  color: #527a48;
+}
+
+.toast {
+  animation: toast-pop .55s var(--ease-spring) both;
+}
+
+@keyframes toast-pop {
+  0% { opacity: 0; transform: translate(-50%, 16px) scale(.9); }
+  70% { opacity: 1; transform: translate(-50%, -3px) scale(1.02); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@media (max-width: 680px) {
+  .pretty-select {
+    min-width: 112px;
+  }
+
+  .filters select,
+  .counterparty-controls select {
+    min-width: 0;
+    padding-right: 32px;
+    background-position: right 10px center;
+  }
+
+  .panel:hover,
+  .stat-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+
+  .pretty-select-menu,
+  .pretty-select-trigger,
+  .pretty-select-trigger .icon,
+  .pretty-select-option {
+    animation: none !important;
+    transition: none !important;
+  }
+}
