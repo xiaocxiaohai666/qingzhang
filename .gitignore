@@ -1,3 +1,7 @@
 .verification/
 node_modules/
 *.log
+
+# android/build.mjs 的中间产物（base/apk、dex、gen、assets 拷贝）——每次构建都会重生成，
+# 发行用的成品在 dist/ 与 青账-免安装版.zip，不要把 scratch 目录当产物提交。
+android/build/

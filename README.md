@@ -40,3 +40,24 @@ node --test tests/ledger-core.test.js tests/xlsx-import.test.js tests/counterpar
 ```
 
 `samples/wechat-demo.xlsx` 和 `samples/wechat-demo.csv` 是同一份虚构的测试账单，可用于尝试导入、重复导入和分类修改。与「体验示例」不同，手动导入此文件会将其加入你的真实本机账本；仅用于测试，请勿混入自己的账单。
+
+## 目录结构
+
+```
+index.html styles.css ui-polish.css app.js   界面层
+ledger-core.js                               账单处理核心（整数分计算、去重、分类规则）
+xlsx-import.js                               Excel 读取入口
+vendor/xlsx.full.min.js                      随项目内置的 SheetJS，断网可用
+samples/                                     虚构示例账单（XLSX + CSV 同一份数据）
+tests/                                       node --test 用例
+tools/bundle-single-file.mjs                 打包单文件免安装版 -> dist/青账.html
+android/build.mjs + SETUP.md                 免 Gradle 手工 APK 链路 -> dist/青账-Android.apk
+dist/                                        发行产物（单文件 HTML / APK）
+青账-免安装版.zip                             面向用户的分发包
+```
+
+## 许可证与签名密钥
+
+本项目以 **MIT** 许可发布，全文见 `LICENSE`。`vendor/` 内置的 SheetJS（`xlsx.full.min.js`）为 **Apache License 2.0**，许可证全文见 `vendor/LICENSE.sheetjs`。
+
+⚠️ **关于安卓签名密钥**：`android/qingzhang.keystore` 是随仓库公开提交的，口令也写在 `android/SETUP.md` 里。这是有意的取舍——该密钥库是不可再生资产，丢了就再也签不出能覆盖安装的升级包，用户只能卸载重装，而卸载会清空 WebView 的本地存储（也就是用户账本），所以它需要一份异地备份，仓库就是那份备份。代价是任何人都能签出同签名的 APK。考虑到本项目不上架应用商店、APK 靠线下分发，且 App 权限列表为空、不联网，这个代价可以接受。若要收回公开性，只能重新生成密钥，并接受「所有已安装用户必须卸载重装」。
